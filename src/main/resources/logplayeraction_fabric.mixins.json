@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "mw.wowkfccc.TISF.logPlayerAction_fabric.listener.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "ItemEntityMixin",
+    "ServerPlayNetworkHandlerMixin",
+    "PlayerCommandCountMixin",
+    "PlayerEntityMixin",
+    "ExperienceOrbEntityMixin",
+    "PlayerTeleportMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
