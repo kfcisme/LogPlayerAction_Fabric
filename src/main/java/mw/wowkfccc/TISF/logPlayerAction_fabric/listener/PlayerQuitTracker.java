@@ -18,9 +18,12 @@ public class PlayerQuitTracker {
             // 累加離線次數
             playerQuitCounts.put(playerId,
                     playerQuitCounts.getOrDefault(playerId, 0) + 1);
+            player.sendMessage(
+                    net.minecraft.text.Text.literal("§6[playerQuitCounts] §f你已合成 "
+                            + playerQuitCounts.get(playerId) + " 次。"),
+                    false
+            );
 
-            // 這裡可選擇紀錄日誌或傳送到資料庫
-            // System.out.println("玩家離線：" + player.getName().getString() + " 次數: " + playerQuitCounts.get(playerId));
         });
     }
 

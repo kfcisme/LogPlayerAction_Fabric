@@ -1,10 +1,14 @@
 plugins {
-    id 'fabric-loom' version '1.10-SNAPSHOT'
+    // Fabric Loom（1.11-SNAPSHOT 需要 Java 21，若仍用 Java 17 可改回 1.10.x）
+    id 'fabric-loom' version '1.11-SNAPSHOT'
+    // Shadow：把外部依賴（MySQL Connector/J）打包進 jar
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    // （可選）Maven 發佈
     id 'maven-publish'
 }
 
 version = project.mod_version
-group = project.maven_group
+group   = project.maven_group
 
 base {
     archivesName = project.archives_base_name
@@ -12,7 +16,6 @@ base {
 
 loom {
     splitEnvironmentSourceSets()
-
     mods {
         "logplayeraction_fabric" {
             sourceSet sourceSets.main
@@ -28,88 +31,96 @@ fabricApi {
 }
 
 repositories {
-    maven { name = 'Fabric'; url = 'https://maven.fabricmc.net/' }
+    maven { url 'https://maven.fabricmc.net/' }
     mavenCentral()
 }
-def minecraft_version    = '1.20.4'
-def fabric_api_version   = '0.97.3+1.20.4'
+
 dependencies {
-    // Minecraft 本體
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    // Yarn mappings
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    // *** 整包 Fabric API，帶所有子模組 ***
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
-    implementation("com.zaxxer:HikariCP:6.3.0")
+    // Minecraft 核心、mappings、Loader、Fabric API
+    minecraft         "com.mojang:minecraft:${project.minecraft_version}"
+    mappings           "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation  "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-networking-api-v1:${project.fabric_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-entity-events-v1:${project.fabric_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-screen-handler-api-v1:${project.fabric_version}"
+
+
+    // MySQL Connector/J，交給 ShadowJar 打包
+    implementation     "mysql:mysql-connector-java:8.0.33"
 }
-//dependencies {
-//    // To change the versions see the gradle.properties file
-//    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-//    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-//    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-//    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-//    // https://mvnrepository.com/artifact/com.zaxxer/HikariCP
-//    implementation("com.zaxxer:HikariCP:6.3.0")
-//}
 
+// 匯入 ShadowJar 與 RemapJarTask 類別
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import net.fabricmc.loom.task.RemapJarTask
+
+// 1. 先用 shadowJar 產出一個 classifier="dev" 的 shaded jar
+tasks.named('shadowJar', ShadowJar) {
+    // 只打包這個 dependency
+    dependencies {
+        include(dependency("mysql:mysql-connector-java"))
+    }
+    // classifier 設為 dev（讓 Loom remapJar 輸入）
+    archiveClassifier.set("dev")
+}
+
+// 2. 用 remapJar（而不是 remapShadowJar）把剛剛的 dev jar remap 為最終 mod.jar
+tasks.named('remapJar', RemapJarTask) {
+    input.set(tasks.named('shadowJar').flatMap { it.archiveFile })
+}
+
+// 3. 停用預設 jar，並讓 build 依賴 remapJar
+tasks.build {
+    dependsOn tasks.named('remapJar')
+}
+tasks.jar { enabled = false }
+
+// 自動替換 resources 裡的版號
 processResources {
-    inputs.property "version", project.version
-    inputs.property "minecraft_version", project.minecraft_version
-    inputs.property "loader_version", project.loader_version
-    filteringCharset "UTF-8"
+    inputs.property 'version',           project.version
+    inputs.property 'minecraft_version', project.minecraft_version
+    inputs.property 'loader_version',    project.loader_version
+    filteringCharset 'UTF-8'
 
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version,
-                "minecraft_version": project.minecraft_version,
-                "loader_version": project.loader_version
+    filesMatching('fabric.mod.json') {
+        expand version:           project.version,
+                minecraft_version: project.minecraft_version,
+                loader_version:    project.loader_version
     }
 }
 
+// Java 編譯與 toolchain
 def targetJavaVersion = 17
 tasks.withType(JavaCompile).configureEach {
-    // ensure that the encoding is set to UTF-8, no matter what the system default is
-    // this fixes some edge cases with special characters not displaying correctly
-    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-    // If Javadoc is generated, this must be specified in that task too.
-    it.options.encoding = "UTF-8"
+    it.options.encoding = 'UTF-8'
     if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
         it.options.release.set(targetJavaVersion)
     }
 }
-
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     if (JavaVersion.current() < javaVersion) {
         toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
     }
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present.
-    // If you remove this line, sources will not be generated.
     withSourcesJar()
 }
 
+// 在 jar 裡加 LICENSE
 jar {
-    from("LICENSE") {
+    from('LICENSE') {
         rename { "${it}_${project.archivesBaseName}" }
     }
 }
 
-// configure the maven publication
+// （可選）Maven 發佈設定
 publishing {
     publications {
-        create("mavenJava", MavenPublication) {
+        create('mavenJava', MavenPublication) {
             artifactId = project.archives_base_name
             from components.java
         }
     }
-
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
     repositories {
-        // Add repositories to publish to here.
-        // Notice: This block does NOT have the same function as the block in the top level.
-        // The repositories here will be used for publishing your artifact, not for
-        // retrieving dependencies.
-
+        // 填入你的發佈倉庫
     }
 }

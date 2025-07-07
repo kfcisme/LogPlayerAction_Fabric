@@ -25,9 +25,11 @@ public class PlayerBucketEmptyTracker {
                 if (player.getStackInHand(hand).getItem() instanceof BucketItem bucket && bucket != Items.BUCKET) {
                     UUID id = serverPlayer.getUuid();
                     playerPlayerBucketEmptyCount.put(id, playerPlayerBucketEmptyCount.getOrDefault(id, 0) + 1);
-                    // Log info (optional):
-                    // System.out.println("[BucketEmpty] Player " + serverPlayer.getEntityName() + " total: " + playerPlayerBucketEmptyCount.get(id));
-                }
+                    player.sendMessage(
+                            net.minecraft.text.Text.literal("§6[playerPlayerBucketEmptyCount] §f你已合成 "
+                                    + playerPlayerBucketEmptyCount.get(id) + " 次。"),
+                            false
+                    );}
             }
             return ActionResult.PASS;
         });

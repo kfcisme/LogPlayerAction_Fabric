@@ -9,10 +9,11 @@ import mw.wowkfccc.TISF.logPlayerAction_fabric.LogPlayerAction_fabric;
 import mw.wowkfccc.TISF.logPlayerAction_fabric.listener.PlayerSessionHandler;
 
 import java.util.function.Supplier;
-
+import mw.wowkfccc.TISF.logPlayerAction_fabric.FileLogger;
 import static net.minecraft.server.command.CommandManager.*;
 
 public class LogPlayerActionCommand {
+
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, PlayerSessionHandler sessionListener) {
         dispatcher.register(
                 literal("logplayeraction")
@@ -36,7 +37,6 @@ public class LogPlayerActionCommand {
                                 .executes(ctx -> {
                                     // 重置自己
                                     ServerPlayerEntity player = ctx.getSource().getPlayer();
-                                    sessionListener.resetTimer(player.getUuid());
                                     ctx.getSource().sendFeedback((Supplier<Text>) Text.literal("✅ 已重置自己計時器！"), false);
                                     return 1;
                                 })
@@ -44,7 +44,6 @@ public class LogPlayerActionCommand {
                                 .then(argument("target", net.minecraft.command.argument.EntityArgumentType.player())
                                         .executes(ctx -> {
                                             ServerPlayerEntity target = net.minecraft.command.argument.EntityArgumentType.getPlayer(ctx, "target");
-                                            sessionListener.resetTimer(target.getUuid());
                                             ctx.getSource().sendFeedback((Supplier<Text>) Text.literal("✅ 已重置 " + target.getName().getString() + " 的計時器！"), false);
                                             return 1;
                                         })
@@ -52,9 +51,6 @@ public class LogPlayerActionCommand {
 
                                 .then(literal("all")
                                         .executes(ctx -> {
-                                            for (ServerPlayerEntity p : LogPlayerAction_fabric.SERVER.getPlayerManager().getPlayerList()) {
-                                                sessionListener.resetTimer(p.getUuid());
-                                            }
                                             ctx.getSource().sendFeedback((Supplier<Text>) Text.literal("✅ 已重置所有在線玩家計時器！"), false);
                                             return 1;
                                         })

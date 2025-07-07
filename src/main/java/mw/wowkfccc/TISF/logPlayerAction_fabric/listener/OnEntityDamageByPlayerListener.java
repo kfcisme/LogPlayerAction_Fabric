@@ -19,7 +19,11 @@ public class OnEntityDamageByPlayerListener {
             UUID playerId = serverPlayer.getUuid();
             playerEntityDamageByEntityCount.put(playerId,
                     playerEntityDamageByEntityCount.getOrDefault(playerId, 0) + 1);
-
+            player.sendMessage(
+                    net.minecraft.text.Text.literal("§6[playerEntityDamageByEntityCount] §f你已合成 "
+                            + playerEntityDamageByEntityCount.get(playerId) + " 次。"),
+                    false
+            );
             return ActionResult.PASS;
         });
     }

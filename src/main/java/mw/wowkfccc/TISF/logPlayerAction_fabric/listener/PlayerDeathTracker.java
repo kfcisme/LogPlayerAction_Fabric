@@ -15,9 +15,11 @@ public class PlayerDeathTracker {
             if (entity instanceof ServerPlayerEntity player) {
                 UUID id = player.getUuid();
                 deathCounts.put(id, deathCounts.getOrDefault(id, 0) + 1);
-
-                // Optional: debug log
-                // System.out.println("[Fabric] " + player.getName().getString() + " died. Total: " + deathCounts.get(id));
+                player.sendMessage(
+                        net.minecraft.text.Text.literal("§6[deathCounts] §f你已合成 "
+                                + deathCounts.get(id) + " 次。"),
+                        false
+                );
             }
         });
     }

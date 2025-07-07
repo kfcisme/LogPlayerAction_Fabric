@@ -26,6 +26,11 @@ public class PlayerLevelChangeTracker {
         UUID id = player.getUuid();
         if (oldLevel != newLevel) {
             playerLevelChangeCount.put(id, playerLevelChangeCount.getOrDefault(id, 0) + 1);
+            player.sendMessage(
+                    net.minecraft.text.Text.literal("§6[playerLevelChangeCount] §f你等級改變 "
+                            + playerLevelChangeCount.get(id) + " 次。"),
+                    false
+            );
         }
     }
 

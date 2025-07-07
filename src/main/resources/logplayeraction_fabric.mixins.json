@@ -6,11 +6,8 @@
   "mixins": [
     "ItemEntityMixin",
     "ServerPlayNetworkHandlerMixin",
-    "PlayerCommandCountMixin",
-    "PlayerEntityMixin",
-    "ExperienceOrbEntityMixin",
-    "PlayerTeleportMixin"
-  ],
+    "PlayerCommandCountMixin","ExperienceOrbEntityMixin",
+    "PlayerTeleportMixin"],
   "injectors": {
     "defaultRequire": 1
   }

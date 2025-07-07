@@ -89,7 +89,12 @@ public class RedstonePlaceTracker {
                         playerRedstoneCount.getOrDefault(playerId, 0) + 1);
 
                 // Debug log (optional)
-                // System.out.println(serverPlayer.getName().getString() + " placed redstone-related block: " + heldBlock.getTranslationKey());
+                player.sendMessage(
+                        net.minecraft.text.Text.literal("§6[playerRedstoneCount] §f你已合成 "
+                                + playerRedstoneCount.get(playerId) + " 次。"),
+                        false
+                );
+
             }
 
             return ActionResult.PASS;

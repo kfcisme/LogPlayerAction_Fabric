@@ -18,11 +18,6 @@ public class OnCraftItemListener {
     public static void increment(ServerPlayerEntity player) {
         UUID uuid = player.getUuid();
         COUNTS.merge(uuid, 1, Integer::sum);
-        player.sendMessage(
-                net.minecraft.text.Text.literal("§6[合成追蹤] §f你已合成 "
-                        + COUNTS.get(uuid) + " 次。"),
-                false
-        );
     }
 
     public static int getCount(UUID uuid) {

@@ -21,10 +21,12 @@ public class TNTPrimeTracker {
                 UUID playerId = player.getUuid();
                 playerTNTPrimeCount.put(playerId,
                         playerTNTPrimeCount.getOrDefault(playerId, 0) + 1);
+                player.sendMessage(
+                        net.minecraft.text.Text.literal("§6[playerTNTPrimeCount] §f你點燃 "
+                                + playerTNTPrimeCount.get(playerId) + " 次。"),
+                        false
+                );
 
-                // Debug log
-                // System.out.println("TNT primed by " + player.getName().getString() +
-                //         ", total = " + playerTNTPrimeCount.get(playerId));
             }
         });
     }

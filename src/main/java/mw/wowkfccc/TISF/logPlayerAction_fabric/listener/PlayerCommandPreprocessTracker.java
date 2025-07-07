@@ -1,5 +1,7 @@
 package mw.wowkfccc.TISF.logPlayerAction_fabric.listener;
 
+import net.minecraft.text.Text;
+
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,7 +14,9 @@ public class PlayerCommandPreprocessTracker {
 
     /** 玩家每次送出以 / 開頭的訊息時呼叫 */
     public static void increment(UUID uuid) {
-        commandCounts.merge(uuid, 1, Integer::sum);
+        commandCounts.merge(uuid, 1, Integer::sum
+        );
+        System.out.println(Text.literal("§a[commandCounts] §f第 " + commandCounts + " 次"));
     }
 
     /** 取得該玩家指令使用總數 */

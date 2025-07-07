@@ -1,3 +1,4 @@
+
 {
   "schemaVersion": 1,
   "id": "logplayeraction_fabric",
@@ -15,6 +16,9 @@
     ],
     "main": [
       "mw.wowkfccc.TISF.logPlayerAction_fabric.LogPlayerAction_fabric"
+    ],
+    "server": [
+      "mw.wowkfccc.TISF.logPlayerAction_fabric.ServerEntry"
     ]
   },
   "mixins": [
@@ -23,7 +27,6 @@
       "config": "logplayeraction_fabric.client.mixins.json",
       "environment": "client"
     }
-
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",
@@ -31,3 +34,4 @@
     "minecraft": "${minecraft_version}"
   }
 }
+

@@ -2,7 +2,10 @@ package mw.wowkfccc.TISF.logPlayerAction_fabric.listener;
 
 import mw.wowkfccc.TISF.logPlayerAction_fabric.LogPlayerAction_fabric;
 import mw.wowkfccc.TISF.logPlayerAction_fabric.listener.*;
+
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerActionManager {
     private final LogPlayerAction_fabric plugin;
@@ -35,27 +38,38 @@ public class PlayerActionManager {
     public int chunkLoadCounts = 0;
     public int redstoneCounts = 0;
     public int afktime = 0;
+    private final Map<UUID, EventCounts> countsMap = new ConcurrentHashMap<>();
+
+    /** 玩家加入時呼叫，為這位玩家建立新的計數物件（或重置既有的） */
 
     public PlayerActionManager(LogPlayerAction_fabric plugin) {
         this.plugin = plugin;
     }
+    public void initializePlayer(UUID uuid) {
+        // 如果已經有同樣的 uuid，就把它重設；否則就 put 一個新的
+        countsMap.put(uuid, new EventCounts(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0));
+    }
 
+    /** 玩家離開時呼叫，移除計數器，釋放記憶體 */
+    public void removePlayer(UUID uuid) {
+        countsMap.remove(uuid);
+    }
     /** 回傳所有事件次數並歸零 */
     public EventCounts getAndResetCounts(UUID playerId) {
         EventCounts c = new EventCounts(
                 pickupCounts = OnPickupItemListener.getCount(playerId),
-                blockBreakCounts = OnBlockBreakListener.getCount(playerId),
+                blockBreakCounts = BlockBreakTracker.get(playerId),
                 tntPrimeCounts = TNTPrimeTracker.sendInsertData(playerId),
                 multiPlaceCounts = OnBlockMultiPlaceListener.getCount(playerId),
                 chatCount = onPlayerChat.getCount(playerId),
                 blockDamageCounts = OnBlockDamageListener.getCount(playerId),
-                blockPlaceCounts = OnBlockPlaceListener.getCount(playerId),
+                blockPlaceCounts = BlockPlaceTracker.get(playerId),
                 craftCounts = OnCraftItemListener.getCount(playerId),
                 dmgByEntityCounts = OnEntityDamageByPlayerListener.getCount(playerId),
                 deathCounts = OnEntityDeathListener.getCount(playerId),
                 furnaceExtractCounts = OnFurnaceExtractListener.getCount(playerId),
-                invCloseCounts = OnInventoryCloseListener.getCount(playerId),
-                invOpenCounts = OnInventoryOpenListener.getCount(playerId),
+                invCloseCounts = InventoryOpenCloseListener.getOpenCount(playerId),
+                invOpenCounts = InventoryOpenCloseListener.getCloseCount(playerId),
                 bucketEmptyCounts = PlayerBucketEmptyTracker.getInsertData(playerId),
                 bucketFillCounts = BucketFillListener.get(playerId),
                 cmdPreCounts = PlayerCommandPreprocessTracker.getCount(playerId),
@@ -76,16 +90,15 @@ public class PlayerActionManager {
     /** 歸零所有事件 */
     public static void resetCounters(UUID playerId) {
         BucketFillListener.reset(playerId);
-                OnBlockBreakListener.reset(playerId);
+                BlockBreakTracker.reset(playerId);
                 OnBlockDamageListener.reset(playerId);
                 OnBlockMultiPlaceListener.reset(playerId);
-                OnBlockPlaceListener.reset(playerId);
+                BlockPlaceTracker.reset(playerId);
                 OnCraftItemListener.reset(playerId);
                 OnEntityDamageByPlayerListener.reset(playerId);
                 OnEntityDeathListener.reset(playerId);
                 OnFurnaceExtractListener.reset(playerId);
-                OnInventoryCloseListener.reset(playerId);
-                OnInventoryOpenListener.reset(playerId);
+                InventoryOpenCloseListener.resetCounts(playerId);
                 OnPickupItemListener.reset(playerId);
                 onPlayerChat.reset(playerId);
                 PlayerBucketEmptyTracker.resetCounters(playerId);

@@ -15,24 +15,18 @@ public class LogPlayerAction_fabric implements ModInitializer {
     public static MinecraftServer SERVER;
 
     private boolean databaseEnable = true;
-    private MySQLConnect mySQL;
-    private mySQLInsertData mySQLInsert;
+//    private MySQLConnect mySQL;
+//    private mySQLInsertData mySQLInsert;
     private PlayerActionManager actionListener;
     private PlayerSessionHandler sessionListener;
+    private FileLogger FileLogger;
 
     @Override
     public void onInitialize() {
         INSTANCE = this;
-
-        // 初始化資料庫
-        if (databaseEnable) {
-            mySQL = new MySQLConnect();
-            mySQL.connect();
-        }
-
-        mySQLInsert = new mySQLInsertData(mySQL);
+//        mySQLInsert = new mySQLInsertData(mySQL);
         actionListener = new PlayerActionManager(this);
-        sessionListener = new PlayerSessionHandler(this, actionListener, mySQLInsert);
+        sessionListener = new PlayerSessionHandler(this, actionListener, FileLogger);
 
 //        // 玩家登入與登出事件
 //        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
@@ -55,27 +49,27 @@ public class LogPlayerAction_fabric implements ModInitializer {
             System.out.println("✅ LogPlayerAction 已啟動");
         });
 
-        ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
-            if (databaseEnable && mySQL.isConnected()) {
-                mySQL.disconnect();
-            }
-            System.out.println("🛑 資料庫已關閉");
-        });
+//        ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+//            if (databaseEnable && mySQL.isConnected()) {
+//                mySQL.disconnect();
+//            }
+//            System.out.println("🛑 資料庫已關閉");
+//        });
 
         // AFK 與 Essentials 模組暫略（Fabric 無內建）✅
 //        onPlayerChat.register();
-        OnBlockBreakListener.register();
+//        OnBlockBreakListener.register();
         OnBlockDamageListener.register();
         OnBlockMultiPlaceListener.register();
-        OnBlockBreakListener.register();
+//        OnBlockBreakListener.register();
         BucketFillListener.register();
         OnBlockPlaceListener.register();
 //        OnCraftItemListener.register();
+        BlockActionListener.register();
         OnEntityDamageByPlayerListener.register();
 //        OnEntityDeathListener.register();
         OnFurnaceExtractListener.register();
-        OnInventoryCloseListener.register();
-        OnInventoryOpenListener.register();
+        InventoryOpenCloseListener.register();
 //        OnPickupItemListener.register();
 //        onPlayerChat.register();
         TNTPrimeTracker.register();
@@ -99,9 +93,9 @@ public class LogPlayerAction_fabric implements ModInitializer {
         return databaseEnable;
     }
 
-    public mySQLInsertData getMySQLInsert() {
-        return mySQLInsert;
-    }
+//    public mySQLInsertData getMySQLInsert() {
+//        return mySQLInsert;
+//    }
 
     public PlayerSessionHandler getSessionListener() {
         return sessionListener;

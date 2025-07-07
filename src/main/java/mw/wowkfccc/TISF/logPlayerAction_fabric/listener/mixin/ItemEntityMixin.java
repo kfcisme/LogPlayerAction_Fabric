@@ -1,36 +1,31 @@
 package mw.wowkfccc.TISF.logPlayerAction_fabric.listener.mixin;
 
+
 import mw.wowkfccc.TISF.logPlayerAction_fabric.listener.OnPickupItemListener;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/**
- * 在玩家與地上的 ItemEntity 碰撞（撿起）時注入
- * :contentReference[oaicite:0]{index=0}
- */
 @Mixin(ItemEntity.class)
 public class ItemEntityMixin {
+    /**
+     * 在伺服器端玩家撿到這個 ItemEntity 時觸發一次
+     * method 名稱對應 Yarn mappings 1.20.4：onPlayerCollision(Lnet/minecraft/entity/player/PlayerEntity;)V
+     */
     @Inject(
-            method = "onPlayerCollision(Lnet/minecraft/entity/player/PlayerEntity;)V",
+            method = "onPlayerCollision",
             at     = @At("HEAD")
     )
-    private void onPlayerPickup(PlayerEntity player, CallbackInfo ci) {
-        if (player instanceof ServerPlayerEntity serverPlayer) {
-            OnPickupItemListener.increment(serverPlayer.getUuid());
-            // （可選）回饋玩家
-            serverPlayer.sendMessage(
-                    net.minecraft.text.Text.literal(
-                            "§6[撿取追蹤] §f你已撿取 " +
-                                    OnPickupItemListener.getCount(serverPlayer.getUuid()) +
-                                    " 件物品"
-                    ),
-                    false
-            );
+    private void onPlayerCollision(PlayerEntity player, CallbackInfo ci) {
+        // 只在伺服器端計數
+        World world = ((ItemEntity)(Object)this).getWorld();
+        if (!world.isClient) {
+            OnPickupItemListener.increment(player.getUuid());
         }
     }
 }
