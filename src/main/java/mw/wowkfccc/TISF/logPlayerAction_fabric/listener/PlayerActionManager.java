@@ -1,7 +1,7 @@
 package mw.wowkfccc.TISF.logPlayerAction_fabric.listener;
 
 import mw.wowkfccc.TISF.logPlayerAction_fabric.LogPlayerAction_fabric;
-import mw.wowkfccc.TISF.logPlayerAction_fabric.listener.*;
+import mw.wowkfccc.TISF.logPlayerAction_fabric.listener.notworked.*;
 
 import java.util.Map;
 import java.util.UUID;
@@ -47,7 +47,7 @@ public class PlayerActionManager {
     }
     public void initializePlayer(UUID uuid) {
         // 如果已經有同樣的 uuid，就把它重設；否則就 put 一個新的
-        countsMap.put(uuid, new EventCounts(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0));
+        countsMap.put(uuid, new EventCounts(0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0));
     }
 
     /** 玩家離開時呼叫，移除計數器，釋放記憶體 */
@@ -64,9 +64,9 @@ public class PlayerActionManager {
                 chatCount = onPlayerChat.getCount(playerId),
                 blockDamageCounts = OnBlockDamageListener.getCount(playerId),
                 blockPlaceCounts = BlockPlaceTracker.get(playerId),
-                craftCounts = OnCraftItemListener.getCount(playerId),
+                craftCounts = CraftingListener.getCount(playerId),
                 dmgByEntityCounts = OnEntityDamageByPlayerListener.getCount(playerId),
-                deathCounts = OnEntityDeathListener.getCount(playerId),
+                deathCounts = EntityDeathListener.getCount(playerId),
                 furnaceExtractCounts = OnFurnaceExtractListener.getCount(playerId),
                 invCloseCounts = InventoryOpenCloseListener.getOpenCount(playerId),
                 invOpenCounts = InventoryOpenCloseListener.getCloseCount(playerId),
@@ -94,9 +94,9 @@ public class PlayerActionManager {
                 OnBlockDamageListener.reset(playerId);
                 OnBlockMultiPlaceListener.reset(playerId);
                 BlockPlaceTracker.reset(playerId);
-                OnCraftItemListener.reset(playerId);
+                CraftingListener.reset(playerId);
                 OnEntityDamageByPlayerListener.reset(playerId);
-                OnEntityDeathListener.reset(playerId);
+                EntityDeathListener.reset(playerId);
                 OnFurnaceExtractListener.reset(playerId);
                 InventoryOpenCloseListener.resetCounts(playerId);
                 OnPickupItemListener.reset(playerId);
@@ -116,7 +116,9 @@ public class PlayerActionManager {
     }
 
     public static class EventCounts {
-        public final int pickup, blockBreak, tntPrime, multiPlace, chat, blockDamage, blockPlace,
+        public final int pickup, blockBreak, tntPrime,
+                multiPlace,
+                chat, blockDamage, blockPlace,
                 craft, dmgByEntity, death,
 //                explosion,
                 furnaceExtract, invClose, invOpen,
@@ -127,7 +129,9 @@ public class PlayerActionManager {
                 chunkLoadCounts, redstoneCounts;
 
         public EventCounts(
-                int pickup, int blockBreak, int tntPrime, int multiPlace, int chat, int blockDamage, int blockPlace,
+                int pickup, int blockBreak, int tntPrime,
+                int multiPlace,
+                int chat, int blockDamage, int blockPlace,
                 int craft, int dmgByEntity, int death,
 //                int explosion,
                 int furnaceExtract, int invClose, int invOpen,

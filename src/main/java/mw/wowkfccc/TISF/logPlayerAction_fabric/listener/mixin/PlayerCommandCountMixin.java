@@ -1,6 +1,6 @@
 package mw.wowkfccc.TISF.logPlayerAction_fabric.listener.mixin;
 
-import mw.wowkfccc.TISF.logPlayerAction_fabric.listener.PlayerCommandPreprocessTracker;
+import mw.wowkfccc.TISF.logPlayerAction_fabric.listener.notworked.PlayerCommandPreprocessTracker;
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -16,21 +16,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class PlayerCommandCountMixin {
-    @Shadow public ServerPlayerEntity player;
+    @Shadow private ServerPlayerEntity player;
 
     @Inject(
-            method = "onChatMessage(Lnet/minecraft/network/packet/c2s/play/ChatMessageC2SPacket;)V",
-            at     = @At("HEAD")
+            method = "onChatMessage",    // 只寫方法名
+            at     = @At("HEAD"),
+            require=0                    // 找不到也不會 fail
     )
-    private void onChatMessageInject(ChatMessageC2SPacket packet, CallbackInfo ci) {
-        String content = packet.chatMessage();
-        if (content.startsWith("/")) {
+    private void onChatMessageInject(ChatMessageC2SPacket pkt, CallbackInfo ci) {
+        String msg = pkt.chatMessage().trim();
+        if (msg.startsWith("/")) {
             PlayerCommandPreprocessTracker.increment(player.getUuid());
             int total = PlayerCommandPreprocessTracker.getCount(player.getUuid());
-            player.sendMessage(
-                    Text.literal("§6[指令追蹤] §f你已使用指令 " + total + " 次"),
-                    false
-            );
+            player.sendMessage(Text.literal("§6[指令追蹤] §f你已使用指令 "+ total +" 次"), false);
         }
     }
 }

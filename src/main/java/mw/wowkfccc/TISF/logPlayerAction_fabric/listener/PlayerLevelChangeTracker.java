@@ -1,44 +1,38 @@
 package mw.wowkfccc.TISF.logPlayerAction_fabric.listener;
 
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.GameRules;
+import net.minecraft.text.Text;
+import org.spongepowered.asm.mixin.Unique;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * 用於統一管理玩家等級變動次數的追蹤器，
+ * 由 Mixin 在等級變動時呼叫 recordChange()。
+ */
 public class PlayerLevelChangeTracker {
-    private static final Map<UUID, Integer> playerLevelChangeCount = new HashMap<>();
+    @Unique
+    private static final Map<UUID, Integer> changeCount = new HashMap<>();
 
-    public static void register() {
-        ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
-            UUID id = newPlayer.getUuid();
-            // 當玩家重生時更新數據（選擇性）
-            if (alive) {
-                playerLevelChangeCount.putIfAbsent(id, 0);
-            }
-        });
-    }
-
-    public static void onLevelChange(ServerPlayerEntity player, int oldLevel, int newLevel) {
+    /**
+     * 當等級變動時由外部呼叫，記錄次數並發送訊息。
+     */
+    public static void recordChange(ServerPlayerEntity player) {
         UUID id = player.getUuid();
-        if (oldLevel != newLevel) {
-            playerLevelChangeCount.put(id, playerLevelChangeCount.getOrDefault(id, 0) + 1);
-            player.sendMessage(
-                    net.minecraft.text.Text.literal("§6[playerLevelChangeCount] §f你等級改變 "
-                            + playerLevelChangeCount.get(id) + " 次。"),
-                    false
-            );
-        }
+        int cnt = changeCount.merge(id, 1, Integer::sum);
+        player.sendMessage(
+                Text.literal("[等級改變] 你已改變等級 " + cnt + " 次。"),
+                false
+        );
     }
 
     public static int sendInsertData(UUID playerId) {
-        return playerLevelChangeCount.getOrDefault(playerId, 0);
+        return changeCount.getOrDefault(playerId, 0);
     }
 
     public static void resetCounters(UUID playerId) {
-        playerLevelChangeCount.remove(playerId);
+        changeCount.remove(playerId);
     }
 }

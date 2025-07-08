@@ -1,13 +1,13 @@
 package mw.wowkfccc.TISF.logPlayerAction_fabric;
 
+import mw.wowkfccc.TISF.logPlayerAction_fabric.listener.EntityDeathListener;
+import mw.wowkfccc.TISF.logPlayerAction_fabric.listener.TNTPrimeTracker;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.server.MinecraftServer;
 
 import mw.wowkfccc.TISF.logPlayerAction_fabric.listener.*;
-import mw.wowkfccc.TISF.logPlayerAction_fabric.*;
 
 public class LogPlayerAction_fabric implements ModInitializer {
 
@@ -63,7 +63,7 @@ public class LogPlayerAction_fabric implements ModInitializer {
         OnBlockMultiPlaceListener.register();
 //        OnBlockBreakListener.register();
         BucketFillListener.register();
-        OnBlockPlaceListener.register();
+//        OnBlockPlaceListener.register();
 //        OnCraftItemListener.register();
         BlockActionListener.register();
         OnEntityDamageByPlayerListener.register();
@@ -79,14 +79,14 @@ public class LogPlayerAction_fabric implements ModInitializer {
 //        PlayerDropItemTracker.register();
 //        PlayerExpChangeTracker.register();
         PlayerInteractTracker.register();
-        PlayerLevelChangeTracker.register();
         PlayerQuitTracker.register();
         PlayerRespawnTracker.register();
 //        PlayerTeleportTracker.register();
         RedstonePlaceTracker.register();
-        TNTPrimeTracker.register();
-
-
+//        TNTPrimeTracker.register();
+        BucketFillListener.register();
+        EntityDeathListener.register();
+        PlayerChunkLoadListener.register();
     }
 
     public boolean isDatabaseEnable() {

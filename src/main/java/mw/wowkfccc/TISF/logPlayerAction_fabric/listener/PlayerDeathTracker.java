@@ -16,7 +16,7 @@ public class PlayerDeathTracker {
                 UUID id = player.getUuid();
                 deathCounts.put(id, deathCounts.getOrDefault(id, 0) + 1);
                 player.sendMessage(
-                        net.minecraft.text.Text.literal("§6[deathCounts] §f你已合成 "
+                        net.minecraft.text.Text.literal("§6[deathCounts] §f you death "
                                 + deathCounts.get(id) + " 次。"),
                         false
                 );

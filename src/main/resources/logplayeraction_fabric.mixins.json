@@ -4,10 +4,13 @@
   "package": "mw.wowkfccc.TISF.logPlayerAction_fabric.listener.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "ItemEntityMixin",
     "ServerPlayNetworkHandlerMixin",
     "PlayerCommandCountMixin","ExperienceOrbEntityMixin",
-    "PlayerTeleportMixin"],
+    "PlayerTeleportMixin",
+  "PlayerLevelChangeMixin",
+  "CraftingScreenHandlerMixin",
+    "PlayerEntityPickupMixin",
+  "PlayerEntityDropMixin"],
   "injectors": {
     "defaultRequire": 1
   }

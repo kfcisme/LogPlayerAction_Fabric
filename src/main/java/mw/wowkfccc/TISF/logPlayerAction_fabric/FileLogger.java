@@ -110,7 +110,7 @@ public class FileLogger {
                 c.pickup + "," +
                 c.blockBreak + "," +
                 c.tntPrime + "," +
-                c.multiPlace + "," +
+//                c.multiPlace + "," +
                 c.chat + "," +
                 c.blockDamage + "," +
                 c.blockPlace + "," +

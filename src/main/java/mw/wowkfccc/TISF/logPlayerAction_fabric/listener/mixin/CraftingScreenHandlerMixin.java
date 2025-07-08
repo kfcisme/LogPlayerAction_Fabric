@@ -1,36 +1,38 @@
-//package mw.wowkfccc.TISF.logPlayerAction_fabric.listener.mixin;
-//
-//import mw.wowkfccc.TISF.logPlayerAction_fabric.listener.OnCraftItemListener;
-//import net.minecraft.screen.CraftingScreenHandler;
-//import net.minecraft.screen.slot.SlotActionType;
-//import net.minecraft.server.network.ServerPlayNetworkHandler;
-//import net.minecraft.item.ItemStack;
-//import org.spongepowered.asm.mixin.Mixin;
-//import org.spongepowered.asm.mixin.injection.At;
-//import org.spongepowered.asm.mixin.injection.Inject;
-//import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-//
-//@Mixin(CraftingScreenHandler.class)
-//public abstract class CraftingScreenHandlerMixin {
-//    /**
-//     * 攔截玩家在工作台點擊任何格子的方法 onSlotClick，
-//     * signature: (int, SlotActionType, ServerPlayNetworkHandler, int) -> ItemStack
-//     */
-//    @Inject(
-//            method = "onSlotClick(ILnet/minecraft/screen/slot/SlotActionType;Lnet/minecraft/server/network/ServerPlayNetworkHandler;I)Lnet/minecraft/item/ItemStack;",
-//            at     = @At("HEAD"),
-//            remap  = true
-//    )
-//    private void onSlotClickHead(int slotIndex,
-//                                 SlotActionType actionType,
-//                                 ServerPlayNetworkHandler netHandler,
-//                                 int button,
-//                                 CallbackInfoReturnable<ItemStack> cir) {
-//        // slotIndex 0 永遠是「合成結果格」
-//        if (slotIndex == 0) {
-//            // 從網路 handler 拿到真正的玩家
-//            OnCraftItemListener.increment(netHandler.getPlayer());
-//        }
-//    }
-//}
-//
+package mw.wowkfccc.TISF.logPlayerAction_fabric.listener.mixin;
+
+import mw.wowkfccc.TISF.logPlayerAction_fabric.listener.CraftingListener;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
+
+import net.minecraft.screen.slot.CraftingResultSlot;
+import net.minecraft.screen.slot.Slot;
+import net.minecraft.text.Text;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+
+@Mixin(CraftingResultSlot.class)
+public abstract class CraftingScreenHandlerMixin extends Slot {
+    /**
+     * 必須與 Slot 類別構造器簽名匹配
+     */
+    protected CraftingScreenHandlerMixin(Inventory inventory, int index, int x, int y) {
+        super(inventory, index, x, y);
+    }
+
+    /**
+     * 在玩家從結果槽取出合成物品時累計次數
+     */
+    @Inject(method = "onTakeItem", at = @At("HEAD"))
+    private void onTakeItemInject(PlayerEntity player, ItemStack stack, CallbackInfo ci) {
+        CraftingListener.increment(player.getUuid());
+        player.sendMessage(
+                Text.literal("§6[合成追蹤]"),
+                false
+        );
+    }
+}
+

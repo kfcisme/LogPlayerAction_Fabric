@@ -13,6 +13,7 @@ public class onPlayerChat {
     /** 每次玩家送出聊天時呼叫 */
     public static void increment(UUID uuid) {
         chatCounts.merge(uuid, 1, Integer::sum);
+//        System.out.println("Target Event PlayerChat");
     }
 
     /** 取得玩家聊天次數 */

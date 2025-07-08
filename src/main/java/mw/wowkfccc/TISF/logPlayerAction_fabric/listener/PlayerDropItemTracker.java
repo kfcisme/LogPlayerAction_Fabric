@@ -31,25 +31,27 @@ package mw.wowkfccc.TISF.logPlayerAction_fabric.listener;
 //}
 
 
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import net.fabricmc.fabric.api.entity.EntityPickInteractionAware;
 
-/**
- * 管理玩家丟棄物品次數，並即時通知玩家
- */
 public class PlayerDropItemTracker {
+    // 1. 單例 instance
+    private static final PlayerDropItemTracker INSTANCE = new PlayerDropItemTracker();
+
+    // 2. 私有化 constructor
+    private PlayerDropItemTracker() {}
+
+    // 3. 提供靜態存取點
+    public static PlayerDropItemTracker getInstance() {
+        return INSTANCE;
+    }
+
+    // 你的原本欄位與方法
     private static final Map<UUID, Integer> counts = new ConcurrentHashMap<>();
 
-    /** 每次丟棄時由 Mixin 調用 */
-    public static void onPlayerDrop(ServerPlayerEntity player) {
-        UUID uuid = player.getUuid();
-        int c = counts.merge(uuid, 1, Integer::sum);
-        player.sendMessage(Text.literal("§6[丟棄物品] 你已丟棄第 " + c + " 次"), false);
+    public void increment(UUID uuid) {
+        counts.merge(uuid, 1, Integer::sum);
     }
 
     public static int getCount(UUID uuid) {

@@ -15,12 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class EntityDeathListener {
     // key = 玩家UUID，value = 擊殺次數
     private static final Map<UUID, Integer> killCounts = new ConcurrentHashMap<>();
-
-    /**
-     * 在伺服器啟動後呼叫一次，註冊死亡事件監聽。
-     * e.g. 在 SERVER_STARTED callback 裡執行：
-     *     OnEntityDeathListener.register();
-     */
     public static void register() {
         ServerLivingEntityEvents.AFTER_DEATH.register((LivingEntity entity, DamageSource source) -> {
             if (source.getAttacker() instanceof ServerPlayerEntity player) {
@@ -29,23 +23,19 @@ public class EntityDeathListener {
             }
         });
     }
-
-    /** 每次玩家擊殺實體時將次數 +1 */
     public static void increment(UUID uuid) {
         killCounts.merge(uuid, 1, Integer::sum);
+        System.out.println("Target Event EntityDeath");
     }
 
-    /** 取得指定玩家的累計擊殺次數 */
     public static int getCount(UUID uuid) {
         return killCounts.getOrDefault(uuid, 0);
     }
 
-    /** 重置指定玩家的擊殺次數 */
     public static void reset(UUID uuid) {
         killCounts.remove(uuid);
     }
 
-    /** （選用）清除所有玩家的擊殺次數 */
     public static void resetAll() {
         killCounts.clear();
     }
