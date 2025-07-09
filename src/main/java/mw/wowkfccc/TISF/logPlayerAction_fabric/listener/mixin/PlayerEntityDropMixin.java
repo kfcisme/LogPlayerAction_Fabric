@@ -22,10 +22,10 @@ public abstract class PlayerEntityDropMixin {
     private void onDropSelectedItemInject(boolean dropAll, CallbackInfoReturnable<ItemEntity> cir) {
         ServerPlayerEntity  player = (ServerPlayerEntity)(Object)this;
         PlayerDropItemTracker.getInstance().increment(player.getUuid());
-        player.sendMessage(
-                Text.literal("[Drop]"),
-                false
-        );
+//        player.sendMessage(
+//                Text.literal("[Drop]"),
+//                false
+//        );
     }
 }
 

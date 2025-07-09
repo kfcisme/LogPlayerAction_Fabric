@@ -14,56 +14,43 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class FileLogger {
     private final PlayerActionManager actionTracker;
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
+    private final Map<UUID, ScheduledFuture<?>> flushTasks = new ConcurrentHashMap<>();
     private Path logsDir;
-
-    /** 人可讀時間格式 */
     private static final DateTimeFormatter TIMESTAMP_FMT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public FileLogger(PlayerActionManager actionTracker) {
+    public FileLogger(LogPlayerAction_fabric plugin,PlayerActionManager actionTracker) {
         this.actionTracker = actionTracker;
-        // 只在伺服器啟動和停止時寫檔
+        // 只註冊啟動/停止，不做全域排程
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStart);
         ServerLifecycleEvents.SERVER_STOPPED.register(this::onServerStop);
     }
 
-    /** 伺服器啟動時：建立目錄並排程定時 flush */
     private void onServerStart(MinecraftServer server) {
         Path gameDir = FabricLoader.getInstance().getGameDir();
-        Path modDir  = gameDir.resolve("mods").resolve("logplayeraction_fabric");
-        logsDir      = modDir.resolve("logs");
-
-        try {
-            Files.createDirectories(logsDir);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // 每 30 分鐘自動 flush 一次
-        scheduler.scheduleAtFixedRate(() -> flushLogs(server),
-                30, 30, TimeUnit.MINUTES);
+        logsDir = gameDir.resolve("mods").resolve("logplayeraction_fabric").resolve("logs");
+        try { Files.createDirectories(logsDir); }
+        catch (IOException e) { e.printStackTrace(); }
     }
 
-    /** 伺服器停止前：最後一次 flush 並關閉排程 */
     private void onServerStop(MinecraftServer server) {
-        flushLogs(server);
+        // 停服前把所有還在排程的都取消
+        flushTasks.forEach((uuid, task) -> {
+            task.cancel(false);
+            flushPlayer(uuid);
+        });
         scheduler.shutdownNow();
     }
 
-    /**
-     * 玩家登入時呼叫此方法，
-     * 會為該玩家建立 `<uuid>.csv`（若不存在），並寫入標題列。
-     */
+    /** 建立檔案並寫入標題，不開自動排程 */
     public void createLog(UUID uuid) {
-        if (logsDir == null) return;
         Path file = logsDir.resolve(uuid + ".csv");
         if (Files.notExists(file)) {
             try {
@@ -73,6 +60,31 @@ public class FileLogger {
                 e.printStackTrace();
             }
         }
+    }
+
+    /** 開始給某玩家獨立排程 */
+    public void schedulePlayerFlush(UUID uuid, long initialDelayMinutes, long periodMinutes) {
+        // 如果已經有排程，先取消舊的
+        cancelPlayerFlush(uuid);
+
+        ScheduledFuture<?> future = scheduler.scheduleAtFixedRate(() -> {
+            flushPlayer(uuid);
+        }, initialDelayMinutes, periodMinutes, TimeUnit.MINUTES);
+
+        flushTasks.put(uuid, future);
+    }
+
+    /** 取消某玩家的排程（通常在玩家離線時呼叫） */
+    public void cancelPlayerFlush(UUID uuid) {
+        ScheduledFuture<?> old = flushTasks.remove(uuid);
+        if (old != null) old.cancel(false);
+    }
+
+    /** 取出單一玩家的計數、寫入並重置 */
+    private void flushPlayer(UUID uuid) {
+        if (logsDir == null) return;
+        PlayerActionManager.EventCounts c = actionTracker.getAndResetCounts(uuid);
+        writeLog(uuid, c);
     }
 
     /** 在新建 CSV 檔的第一行寫入完整欄位名稱 */
@@ -125,12 +137,7 @@ public class FileLogger {
         }
     }
 
-    /** 取出單一玩家的計數、寫入並重置 */
-    private void flushPlayer(UUID uuid) {
-        if (logsDir == null) return;
-        PlayerActionManager.EventCounts c = actionTracker.getAndResetCounts(uuid);
-        writeLog(uuid, c);
-    }
+
 
     /** 將一筆計數格式化成 CSV 一行並寫入 */
     private void writeLog(UUID uuid, PlayerActionManager.EventCounts c) {
@@ -142,6 +149,11 @@ public class FileLogger {
         )) {
             w.write(line);
             w.newLine();
+            System.out.println("[LogPlayerAction] 已為玩家 "
+                    + uuid
+                    + " 寫入一筆紀錄到 "
+                    + file.getFileName());
+            PlayerActionManager.resetCounters(uuid);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -31,10 +31,10 @@ public class OnFurnaceExtractListener {
                         int cnt = furnaceExtractCounts.getOrDefault(uuid, 0) + 1;
                         furnaceExtractCounts.put(uuid, cnt);
                         lastOutput.put(uuid, now.copy());
-                        player.sendMessage(
-                                Text.literal("§6[爐子] §f你已提取 " + cnt + " 次"),
-                                false
-                        );
+//                        player.sendMessage(
+//                                Text.literal("§6[爐子] §f你已提取 " + cnt + " 次"),
+//                                false
+//                        );
                     }
                 } else {
                     lastOutput.remove(uuid);

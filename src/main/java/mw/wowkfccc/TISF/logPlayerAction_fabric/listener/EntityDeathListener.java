@@ -9,9 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * 監聽實體死亡，當死亡來源為玩家(ServerPlayerEntity)時，統計擊殺次數。
- */
+
 public class EntityDeathListener {
     // key = 玩家UUID，value = 擊殺次數
     private static final Map<UUID, Integer> killCounts = new ConcurrentHashMap<>();
@@ -25,7 +23,7 @@ public class EntityDeathListener {
     }
     public static void increment(UUID uuid) {
         killCounts.merge(uuid, 1, Integer::sum);
-        System.out.println("Target Event EntityDeath");
+//        System.out.println("Target Event EntityDeath");
     }
 
     public static int getCount(UUID uuid) {

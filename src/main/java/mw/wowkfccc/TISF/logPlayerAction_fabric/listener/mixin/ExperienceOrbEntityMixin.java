@@ -24,12 +24,12 @@ public class ExperienceOrbEntityMixin {
             PlayerExpChangeTracker.increment(server.getUuid());
             // （可選）即時通知玩家
             int total = PlayerExpChangeTracker.getCount(server.getUuid());
-            server.sendMessage(
-                    net.minecraft.text.Text.literal(
-                            "§6[經驗球追蹤] §f你已撿取經驗球 " + total + " 次"
-                    ),
-                    false
-            );
+//            server.sendMessage(
+//                    net.minecraft.text.Text.literal(
+//                            "§6[經驗球追蹤] §f你已撿取經驗球 " + total + " 次"
+//                    ),
+//                    false
+//            );
         }
     }
 }

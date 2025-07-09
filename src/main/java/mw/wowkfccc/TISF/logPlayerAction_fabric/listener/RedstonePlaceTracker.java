@@ -89,11 +89,11 @@ public class RedstonePlaceTracker {
                         playerRedstoneCount.getOrDefault(playerId, 0) + 1);
 
                 // Debug log (optional)
-                player.sendMessage(
-                        net.minecraft.text.Text.literal("§6[playerRedstoneCount] §f你已合成 "
-                                + playerRedstoneCount.get(playerId) + " 次。"),
-                        false
-                );
+//                player.sendMessage(
+//                        net.minecraft.text.Text.literal("§6[playerRedstoneCount] §f你已合成 "
+//                                + playerRedstoneCount.get(playerId) + " 次。"),
+//                        false
+//                );
 
             }
 

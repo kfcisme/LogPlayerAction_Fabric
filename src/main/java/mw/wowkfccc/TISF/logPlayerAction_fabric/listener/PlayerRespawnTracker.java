@@ -21,14 +21,14 @@ public class PlayerRespawnTracker {
                     playerRespawnCount.getOrDefault(playerId, 0) + 1
             );
             // （可選）回饋玩家
-            newPlayer.sendMessage(
-                    net.minecraft.text.Text.literal(
-                            "§6[重生追蹤] §f你已重生 " +
-                                    playerRespawnCount.get(playerId) +
-                                    " 次"
-                    ),
-                    false
-            );
+//            newPlayer.sendMessage(
+//                    net.minecraft.text.Text.literal(
+//                            "§6[重生追蹤] §f你已重生 " +
+//                                    playerRespawnCount.get(playerId) +
+//                                    " 次"
+//                    ),
+//                    false
+//            );
         });
     }
 

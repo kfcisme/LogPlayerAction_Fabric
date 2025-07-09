@@ -18,7 +18,7 @@ public class AFKManager {
     private static final Map<UUID, Long> afkTotalSec   = new ConcurrentHashMap<>();
 
     // 閥值：300秒（5 分鐘）
-    private static final long THRESHOLD_MS = 30L * 1000L;
+    private static final long THRESHOLD_MS = 300L * 1000L;
 
     /** 記錄玩家有活動（任何行為都要呼） */
     public static void recordActivity(ServerPlayerEntity p) {

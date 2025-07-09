@@ -10,12 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * 透過每個 tick 比對玩家的 currentScreenHandler，
- * 來判斷「從遊戲畫面(playerScreenHandler)→介面(container)」是開啟，
- * 「從介面→遊戲畫面」是關閉，
- * 並且只各+1次。
- */
+
 public class InventoryOpenCloseListener {
     // 存玩家上一次的 handler
     private static final Map<UUID, ScreenHandler> previousHandler = new HashMap<>();
@@ -24,9 +19,7 @@ public class InventoryOpenCloseListener {
     // 記關閉次數
     private static final Map<UUID, Integer> closeCounts = new HashMap<>();
 
-    /**
-     * 在伺服器啟動時呼叫一次，註冊 JOIN、DISCONNECT、END_SERVER_TICK
-     */
+
     public static void register() {
         // 玩家進入時初始化
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
@@ -55,20 +48,20 @@ public class InventoryOpenCloseListener {
                 // 從「遊戲畫面」跳到「任一 Container」：開啟
                 if (prev == player.playerScreenHandler && curr != player.playerScreenHandler) {
                     openCounts.put(uuid, openCounts.get(uuid) + 1);
-                    player.sendMessage(
-                            net.minecraft.text.Text.literal("§6[inv open] §f你已合成 "
-                                    + openCounts.get(uuid) + " 次。"),
-                            false
-                    );
+//                    player.sendMessage(
+//                            net.minecraft.text.Text.literal("§6[inv open] §f你已合成 "
+//                                    + openCounts.get(uuid) + " 次。"),
+//                            false
+//                    );
                 }
                 // 從「Container」回到「遊戲畫面」：關閉
                 if (prev != player.playerScreenHandler && curr == player.playerScreenHandler) {
                     closeCounts.put(uuid, closeCounts.get(uuid) + 1);
-                    player.sendMessage(
-                            net.minecraft.text.Text.literal("§6[inv close] §f你已合成 "
-                                    + closeCounts.get(uuid) + " 次。"),
-                            false
-                    );
+//                    player.sendMessage(
+//                            net.minecraft.text.Text.literal("§6[inv close] §f你已合成 "
+//                                    + closeCounts.get(uuid) + " 次。"),
+//                            false
+//                    );
                 }
 
                 // 更新上一次的 handler

@@ -29,10 +29,10 @@ public abstract class CraftingScreenHandlerMixin extends Slot {
     @Inject(method = "onTakeItem", at = @At("HEAD"))
     private void onTakeItemInject(PlayerEntity player, ItemStack stack, CallbackInfo ci) {
         CraftingListener.increment(player.getUuid());
-        player.sendMessage(
-                Text.literal("§6[合成追蹤]"),
-                false
-        );
+//        player.sendMessage(
+//                Text.literal("§6[合成追蹤]"),
+//                false
+//        );
     }
 }
 

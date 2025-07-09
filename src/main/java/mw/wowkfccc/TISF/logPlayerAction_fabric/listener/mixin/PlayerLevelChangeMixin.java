@@ -31,10 +31,10 @@ public class PlayerLevelChangeMixin {
 
         if (oldLv != newLv) {
             int cnt = changeCount.merge(id, 1, Integer::sum);
-            player.sendMessage(
-                    Text.literal("[等級改變] 你已改變等級 " + cnt + " 次。"),
-                    false
-            );
+//            player.sendMessage(
+//                    Text.literal("[等級改變] 你已改變等級 " + cnt + " 次。"),
+//                    false
+//            );
         }
         prevLevel.put(id, newLv);
     }

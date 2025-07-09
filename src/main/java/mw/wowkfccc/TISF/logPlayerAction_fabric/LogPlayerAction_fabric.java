@@ -25,6 +25,7 @@ public class LogPlayerAction_fabric implements ModInitializer {
     public void onInitialize() {
         INSTANCE = this;
         actionListener = new PlayerActionManager(this);
+        FileLogger     = new FileLogger( this,actionListener);
         sessionListener = new PlayerSessionHandler(this, actionListener, FileLogger);
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {

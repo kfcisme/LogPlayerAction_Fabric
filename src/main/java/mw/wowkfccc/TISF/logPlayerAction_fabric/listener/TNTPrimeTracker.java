@@ -38,10 +38,10 @@ public class TNTPrimeTracker {
                 if (world.getBlockState(pos).isOf(Blocks.TNT)) {
                     UUID id = serverPlayer.getUuid();
                     int count = playerTNTPrimeCount.merge(id, 1, Integer::sum);
-                    serverPlayer.sendMessage(
-                            Text.literal("[TNT 點燃] 你已點燃 TNT " + count + " 次。"),
-                            false
-                    );
+//                    serverPlayer.sendMessage(
+//                            Text.literal("[TNT 點燃] 你已點燃 TNT " + count + " 次。"),
+//                            false
+//                    );
                 }
             }
             return ActionResult.PASS;
@@ -54,10 +54,10 @@ public class TNTPrimeTracker {
     public static void recordPrime(ServerPlayerEntity player) {
         UUID id = player.getUuid();
         int count = playerTNTPrimeCount.merge(id, 1, Integer::sum);
-        player.sendMessage(
-                Text.literal("[TNT 點燃] 你已點燃 TNT " + count + " 次。"),
-                false
-        );
+//        player.sendMessage(
+//                Text.literal("[TNT 點燃] 你已點燃 TNT " + count + " 次。"),
+//                false
+//        );
     }
 
 

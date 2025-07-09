@@ -21,7 +21,7 @@ public class BlockActionListener {
                 if (player.getStackInHand(hand).getItem() instanceof BlockItem) {
                     UUID uuid = player.getUuid();
                     int count = BlockPlaceTracker.increment(uuid);
-                    player.sendMessage(Text.literal("§e[方塊放置] §f第 " + count + " 次"), false);
+//                    player.sendMessage(Text.literal("§e[方塊放置] §f第 " + count + " 次"), false);
                 }
             }
             return ActionResult.PASS;
@@ -32,7 +32,7 @@ public class BlockActionListener {
             if (!world.isClient && player instanceof ServerPlayerEntity) {
                 UUID uuid = player.getUuid();
                 int count = BlockBreakTracker.increment(uuid);
-                player.sendMessage(Text.literal("§c[方塊破壞] §f第 " + count + " 次"), false);
+//                player.sendMessage(Text.literal("§c[方塊破壞] §f第 " + count + " 次"), false);
             }
             return ActionResult.PASS;
         });

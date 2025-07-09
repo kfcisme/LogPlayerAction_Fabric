@@ -29,9 +29,9 @@ public abstract class ServerPlayNetworkHandlerMixin {
 
         // （可選）可即時顯示給玩家
         int total = onPlayerChat.getCount(player.getUuid());
-        player.sendMessage(
-                Text.literal("§6[聊天追蹤] §f你已發言 " + total + " 次"),
-                false
-        );
+//        player.sendMessage(
+//                Text.literal("§6[聊天追蹤] §f你已發言 " + total + " 次"),
+//                false
+//        );
     }
 }

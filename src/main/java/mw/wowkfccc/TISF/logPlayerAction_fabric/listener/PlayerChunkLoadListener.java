@@ -45,10 +45,10 @@ public class PlayerChunkLoadListener {
                     chunkLoadCounts.put(uuid, c);
 
                     // （可選）即時回饋玩家
-                    player.sendMessage(
-                            Text.literal("§6[區塊載入追蹤] §f你已載入 " + c + " 個新區塊"),
-                            false
-                    );
+//                    player.sendMessage(
+//                            Text.literal("§6[區塊載入追蹤] §f你已載入 " + c + " 個新區塊"),
+//                            false
+//                    );
                 }
             }
         });

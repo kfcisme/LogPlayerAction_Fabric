@@ -20,11 +20,11 @@ public class PlayerInteractTracker {
             if (player instanceof ServerPlayerEntity serverPlayer) {
                 UUID id = serverPlayer.getUuid();
                 playerInteractCount.put(id, playerInteractCount.getOrDefault(id, 0) + 1);
-                player.sendMessage(
-                        net.minecraft.text.Text.literal("§6[playerInteractCount] §f你已合成 "
-                                + playerInteractCount.get(id) + " 次。"),
-                        false
-                );
+//                player.sendMessage(
+//                        net.minecraft.text.Text.literal("§6[playerInteractCount] §f你已合成 "
+//                                + playerInteractCount.get(id) + " 次。"),
+//                        false
+//                );
             }
             return ActionResult.PASS;
         });
@@ -34,11 +34,11 @@ public class PlayerInteractTracker {
             if (player instanceof ServerPlayerEntity serverPlayer) {
                 UUID id = serverPlayer.getUuid();
                 playerInteractCount.put(id, playerInteractCount.getOrDefault(id, 0) + 1);
-                player.sendMessage(
-                        net.minecraft.text.Text.literal("§6[playerInteractCount] §f你已合成 "
-                                + playerInteractCount.get(id) + " 次。"),
-                        false
-                );
+//                player.sendMessage(
+//                        net.minecraft.text.Text.literal("§6[playerInteractCount] §f你已合成 "
+//                                + playerInteractCount.get(id) + " 次。"),
+//                        false
+//                );
             }
             return TypedActionResult.pass(player.getStackInHand(hand));
         });

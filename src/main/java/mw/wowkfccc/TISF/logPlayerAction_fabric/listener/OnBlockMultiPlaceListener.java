@@ -19,11 +19,11 @@ public class OnBlockMultiPlaceListener {
             if (player.getStackInHand(hand).getCount() > 1) {
                 UUID uuid = serverPlayer.getUuid();
                 multiPlaceCounts.put(uuid, multiPlaceCounts.getOrDefault(uuid, 0) + 1);
-                player.sendMessage(
-                        net.minecraft.text.Text.literal("§6[multiPlace] §f你已合成 "
-                                + multiPlaceCounts.get(uuid) + " 次。"),
-                        false
-                );
+    //               ` player.sendMessage(
+    //                        net.minecraft.text.Text.literal("§6[multiPlace] §f你已合成 "
+    //                                + multiPlaceCounts.get(uuid) + " 次。"),
+    //                        false
+    //                );`
             }
 
             return ActionResult.PASS;

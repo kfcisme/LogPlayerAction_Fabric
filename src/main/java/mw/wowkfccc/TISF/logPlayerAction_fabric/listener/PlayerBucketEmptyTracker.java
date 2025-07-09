@@ -25,11 +25,12 @@ public class PlayerBucketEmptyTracker {
                 if (player.getStackInHand(hand).getItem() instanceof BucketItem bucket && bucket != Items.BUCKET) {
                     UUID id = serverPlayer.getUuid();
                     playerPlayerBucketEmptyCount.put(id, playerPlayerBucketEmptyCount.getOrDefault(id, 0) + 1);
-                    player.sendMessage(
-                            net.minecraft.text.Text.literal("§6[playerPlayerBucketEmptyCount] §f你已合成 "
-                                    + playerPlayerBucketEmptyCount.get(id) + " 次。"),
-                            false
-                    );}
+//                    player.sendMessage(
+//                            net.minecraft.text.Text.literal("§6[playerPlayerBucketEmptyCount] §f你已合成 "
+//                                    + playerPlayerBucketEmptyCount.get(id) + " 次。"),
+//                            false
+//                    );
+                    }
             }
             return ActionResult.PASS;
         });

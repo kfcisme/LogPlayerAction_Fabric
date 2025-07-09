@@ -26,11 +26,11 @@ public class BucketFillListener {
                 if (world.getBlockState(pos).getBlock() == Blocks.WATER) {
                     UUID uuid = player.getUuid();
                     playerBucketFillCount.put(uuid, playerBucketFillCount.getOrDefault(uuid, 0) + 1);
-                    player.sendMessage(
-                            net.minecraft.text.Text.literal("§6[水桶填滿] §f你已填滿水桶 "
-                                    + playerBucketFillCount.get(uuid) + " 次。"),
-                            false
-                    );
+//                    player.sendMessage(
+//                            net.minecraft.text.Text.literal("§6[水桶填滿] §f你已填滿水桶 "
+//                                    + playerBucketFillCount.get(uuid) + " 次。"),
+//                            false
+//                    );
                 }
             }
             return ActionResult.PASS;

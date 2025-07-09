@@ -18,11 +18,11 @@ public class PlayerQuitTracker {
             // 累加離線次數
             playerQuitCounts.put(playerId,
                     playerQuitCounts.getOrDefault(playerId, 0) + 1);
-            player.sendMessage(
-                    net.minecraft.text.Text.literal("§6[playerQuitCounts] §f你已合成 "
-                            + playerQuitCounts.get(playerId) + " 次。"),
-                    false
-            );
+//            player.sendMessage(
+//                    net.minecraft.text.Text.literal("§6[playerQuitCounts] §f你已合成 "
+//                            + playerQuitCounts.get(playerId) + " 次。"),
+//                    false
+//            );
 
         });
     }

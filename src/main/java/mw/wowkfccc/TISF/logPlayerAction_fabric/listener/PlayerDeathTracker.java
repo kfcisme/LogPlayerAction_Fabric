@@ -15,11 +15,11 @@ public class PlayerDeathTracker {
             if (entity instanceof ServerPlayerEntity player) {
                 UUID id = player.getUuid();
                 deathCounts.put(id, deathCounts.getOrDefault(id, 0) + 1);
-                player.sendMessage(
-                        net.minecraft.text.Text.literal("§6[deathCounts] §f you death "
-                                + deathCounts.get(id) + " 次。"),
-                        false
-                );
+//                player.sendMessage(
+//                        net.minecraft.text.Text.literal("§6[deathCounts] §f you death "
+//                                + deathCounts.get(id) + " 次。"),
+//                        false
+//                );
             }
         });
     }

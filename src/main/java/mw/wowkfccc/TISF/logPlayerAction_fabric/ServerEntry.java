@@ -11,7 +11,7 @@ public class ServerEntry implements DedicatedServerModInitializer {
 
     // 事件統計器與檔案寫入器
     private final PlayerActionManager actionTracker = new PlayerActionManager(LogPlayerAction_fabric.INSTANCE);
-    private final FileLogger fileLogger = new FileLogger(actionTracker);
+    private final FileLogger fileLogger = new FileLogger(LogPlayerAction_fabric.INSTANCE,actionTracker);
 
     @Override
     public void onInitializeServer() {

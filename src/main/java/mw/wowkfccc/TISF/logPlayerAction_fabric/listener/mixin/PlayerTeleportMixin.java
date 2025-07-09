@@ -30,12 +30,11 @@ public abstract class PlayerTeleportMixin {
         ServerPlayerEntity self = (ServerPlayerEntity)(Object)this;
         PlayerTeleportTracker.increment(self.getUuid());
         int total = PlayerTeleportTracker.getCount(self.getUuid());
-        self.sendMessage(
-                net.minecraft.text.Text.literal(
-                        "§6[傳送追蹤] §f你已傳送 " + total + " 次"
-                ),
-                false
-        );
-        // 如需取消原本傳送可呼：cir.setReturnValue(false);
+//        self.sendMessage(
+//                net.minecraft.text.Text.literal(
+//                        "§6[傳送追蹤] §f你已傳送 " + total + " 次"
+//                ),
+//                false
+//        );
     }
 }

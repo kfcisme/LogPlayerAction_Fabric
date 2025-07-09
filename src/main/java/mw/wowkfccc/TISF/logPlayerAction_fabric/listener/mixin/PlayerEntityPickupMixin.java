@@ -22,10 +22,10 @@ public abstract class PlayerEntityPickupMixin {
         // 只有 pickupDelay == 0 時才算真撿起
         if (this.pickupDelay == 0) {
             OnPickupItemListener.getInstance().increment(player.getUuid());
-            player.sendMessage(
-                    Text.literal("[Pickup]"),
-                    false
-            );
+//            player.sendMessage(
+//                    Text.literal("[Pickup]"),
+//                    false
+//            );
         }
     }
 }
