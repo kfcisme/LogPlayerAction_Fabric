@@ -155,7 +155,7 @@ public class PlayerSessionHandler {
         this.plugin        = plugin;
         this.actionTracker = actionTracker;
         // 建構子中初始化 FileLogger（它已在內部註冊 SERVER_STARTED/STOPPED 並排程寫檔）
-        this.fileLogger    = new FileLogger(plugin, actionTracker);
+        this.fileLogger    = new FileLogger(actionTracker);
 
         // 1) 玩家加入：初始化統計、建立 log 檔
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {

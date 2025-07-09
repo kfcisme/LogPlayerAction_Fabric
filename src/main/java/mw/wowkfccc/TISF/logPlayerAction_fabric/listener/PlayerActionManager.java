@@ -1,7 +1,6 @@
 package mw.wowkfccc.TISF.logPlayerAction_fabric.listener;
 
 import mw.wowkfccc.TISF.logPlayerAction_fabric.LogPlayerAction_fabric;
-import mw.wowkfccc.TISF.logPlayerAction_fabric.listener.notworked.*;
 
 import java.util.Map;
 import java.util.UUID;
@@ -46,8 +45,7 @@ public class PlayerActionManager {
         this.plugin = plugin;
     }
     public void initializePlayer(UUID uuid) {
-        // 如果已經有同樣的 uuid，就把它重設；否則就 put 一個新的
-        countsMap.put(uuid, new EventCounts(0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0));
+        countsMap.put(uuid, new EventCounts(0,0,0, 0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0));
     }
 
     /** 玩家離開時呼叫，移除計數器，釋放記憶體 */
@@ -67,12 +65,14 @@ public class PlayerActionManager {
                 craftCounts = CraftingListener.getCount(playerId),
                 dmgByEntityCounts = OnEntityDamageByPlayerListener.getCount(playerId),
                 deathCounts = EntityDeathListener.getCount(playerId),
+//                explosionCounts = onExplosionPrime.SendInsertData(playerId),
                 furnaceExtractCounts = OnFurnaceExtractListener.getCount(playerId),
                 invCloseCounts = InventoryOpenCloseListener.getOpenCount(playerId),
                 invOpenCounts = InventoryOpenCloseListener.getCloseCount(playerId),
                 bucketEmptyCounts = PlayerBucketEmptyTracker.getInsertData(playerId),
                 bucketFillCounts = BucketFillListener.get(playerId),
-                cmdPreCounts = PlayerCommandPreprocessTracker.getCount(playerId),
+                cmdPreCounts = CommandCountManager.getCount(playerId),
+//                cmdSendCounts = onPlayerCommandSend.SendInsertData(playerId),
                 playerDeathCounts = PlayerDeathTracker.sendInsertData(playerId),
                 itemDropCounts = PlayerDropItemTracker.getCount(playerId),
                 expChangeCounts = PlayerExpChangeTracker.getCount(playerId),
@@ -82,7 +82,8 @@ public class PlayerActionManager {
                 respawnCounts = PlayerRespawnTracker.getCount(playerId),
                 teleportCounts = PlayerTeleportTracker.getCount(playerId),
                 chunkLoadCounts = PlayerChunkLoadListener.getCount(playerId),
-                redstoneCounts = RedstonePlaceTracker.sendInsertData(playerId)
+                redstoneCounts = RedstonePlaceTracker.sendInsertData(playerId),
+                afktime = AFKManager.getAfkTotalSeconds(playerId)
         );
         return c;
     }
@@ -102,7 +103,7 @@ public class PlayerActionManager {
                 OnPickupItemListener.reset(playerId);
                 onPlayerChat.reset(playerId);
                 PlayerBucketEmptyTracker.resetCounters(playerId);
-                PlayerCommandPreprocessTracker.reset(playerId);
+                CommandCountManager.reset(playerId);
                 PlayerDeathTracker.resetCounters(playerId);
                 PlayerDropItemTracker.reset(playerId);
                 PlayerExpChangeTracker.reset(playerId);
@@ -113,6 +114,7 @@ public class PlayerActionManager {
                 PlayerTeleportTracker.reset(playerId);
                 RedstonePlaceTracker.resetCounters(playerId);
                 TNTPrimeTracker.resetCounters(playerId);
+                AFKManager.resetPlayer(playerId);
     }
 
     public static class EventCounts {
@@ -126,7 +128,7 @@ public class PlayerActionManager {
 //                cmdSend,
                 playerDeath, itemDrop,
                 expChange, interact, levelChange, quit, respawn, teleport,
-                chunkLoadCounts, redstoneCounts;
+                chunkLoadCounts, redstoneCounts, afktime;
 
         public EventCounts(
                 int pickup, int blockBreak, int tntPrime,
@@ -139,7 +141,7 @@ public class PlayerActionManager {
 //                int cmdSend,
                 int playerDeath, int itemDrop,
                 int expChange, int interact, int levelChange, int quit, int respawn, int teleport,
-                int chunkLoadCounts, int redstoneCounts
+                int chunkLoadCounts, int redstoneCounts, int afktime
         ) {
             this.pickup = pickup;
             this.blockBreak = blockBreak;
@@ -169,6 +171,7 @@ public class PlayerActionManager {
             this.teleport = teleport;
             this.chunkLoadCounts = chunkLoadCounts;
             this.redstoneCounts = redstoneCounts;
+            this.afktime = afktime;
         }
 
         public boolean hasAnyActivity() {
@@ -176,7 +179,7 @@ public class PlayerActionManager {
                     craft + dmgByEntity + death + /**explosion**/ + furnaceExtract + invClose + invOpen +
                     bucketEmpty + bucketFill + cmdPre + /**cmdSend**/ + playerDeath + itemDrop +
                     expChange + interact + levelChange + quit + respawn + teleport +
-                    chunkLoadCounts + redstoneCounts  > 0;
+                    chunkLoadCounts + redstoneCounts + afktime > 0;
         }
     }
 }

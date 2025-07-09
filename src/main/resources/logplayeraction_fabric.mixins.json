@@ -5,12 +5,13 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "ServerPlayNetworkHandlerMixin",
-    "PlayerCommandCountMixin","ExperienceOrbEntityMixin",
+    "ExperienceOrbEntityMixin",
     "PlayerTeleportMixin",
   "PlayerLevelChangeMixin",
   "CraftingScreenHandlerMixin",
     "PlayerEntityPickupMixin",
-  "PlayerEntityDropMixin"],
+  "PlayerEntityDropMixin",
+  "PlayerCommandCountMixin"],
   "injectors": {
     "defaultRequire": 1
   }

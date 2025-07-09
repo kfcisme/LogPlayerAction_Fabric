@@ -3,137 +3,188 @@ package mw.wowkfccc.TISF.logPlayerAction_fabric;
 import mw.wowkfccc.TISF.logPlayerAction_fabric.listener.PlayerActionManager;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
-//import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.server.MinecraftServer;
 
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.nio.file.Path;
 
 public class FileLogger {
-    private final LogPlayerAction_fabric plugin;
     private final PlayerActionManager actionTracker;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    //    private File logsDir;
     private Path logsDir;
 
-    public FileLogger(LogPlayerAction_fabric plugin, PlayerActionManager actionTracker) {
-        this.plugin        = plugin;
-        this.actionTracker = actionTracker;
+    /** 人可讀時間格式 */
+    private static final DateTimeFormatter TIMESTAMP_FMT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-        // 伺服器啟動／停止事件
+    public FileLogger(PlayerActionManager actionTracker) {
+        this.actionTracker = actionTracker;
+        // 只在伺服器啟動和停止時寫檔
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStart);
         ServerLifecycleEvents.SERVER_STOPPED.register(this::onServerStop);
     }
 
-    /** 伺服器啟動時被呼叫 */
+    /** 伺服器啟動時：建立目錄並排程定時 flush */
     private void onServerStart(MinecraftServer server) {
-        // 1) 伺服器根目錄
         Path gameDir = FabricLoader.getInstance().getGameDir();
-        // 2) mods/<mod-id>/logs
         Path modDir  = gameDir.resolve("mods").resolve("logplayeraction_fabric");
-        logsDir       = modDir.resolve("logs");
+        logsDir      = modDir.resolve("logs");
 
         try {
             Files.createDirectories(logsDir);
         } catch (IOException e) {
-            System.err.println(e);
+            e.printStackTrace();
         }
 
-        // 3) 排程每 30 分鐘寫一次
+        // 每 30 分鐘自動 flush 一次
         scheduler.scheduleAtFixedRate(() -> flushLogs(server),
                 30, 30, TimeUnit.MINUTES);
     }
 
-    /** 伺服器停止前被呼叫 */
+    /** 伺服器停止前：最後一次 flush 並關閉排程 */
     private void onServerStop(MinecraftServer server) {
-        // 停服前再 flush 一次
         flushLogs(server);
         scheduler.shutdownNow();
     }
 
-    /** 玩家 JOIN 時，建立一個空的 log 檔（若檔案已存在則不改） */
+    /**
+     * 玩家登入時呼叫此方法，
+     * 會為該玩家建立 `<uuid>.csv`（若不存在），並寫入標題列。
+     */
     public void createLog(UUID uuid) {
-        if (logsDir == null) return; // 尚未啟動
-        Path file = logsDir.resolve(uuid.toString() + ".log");
+        if (logsDir == null) return;
+        Path file = logsDir.resolve(uuid + ".csv");
         if (Files.notExists(file)) {
             try {
                 Files.createFile(file);
+                writeHeader(file);
             } catch (IOException e) {
-                System.err.println(e);
+                e.printStackTrace();
             }
         }
     }
 
-    /** 取出所有在線玩家的統計並寫入各自的 log 檔 */
-    public void flushLogs(MinecraftServer server) {
-        for (var player : server.getPlayerManager().getPlayerList()) {
-            UUID uuid = player.getUuid();
-            var counts = actionTracker.getAndResetCounts(uuid);
-            writeLog(uuid, counts);
+    /** 在新建 CSV 檔的第一行寫入完整欄位名稱 */
+    private void writeHeader(Path file) throws IOException {
+        String header = String.join(",",
+                "record_time",
+                "pickup",
+                "block_break",
+                "tnt_prime",
+                "multi_place",
+                "chat",
+                "block_damage",
+                "block_place",
+                "craft",
+                "dmg_by_entity",
+                "death",
+//                "explosion",
+                "furnace_extract",
+                "inv_close",
+                "inv_open",
+                "bucket_empty",
+                "bucket_fill",
+                "cmd_pre",
+//                "cmd_send",
+                "player_death",
+                "item_drop",
+                "exp_change",
+                "interact",
+                "level_change",
+                "quit",
+                "respawn",
+                "teleport",
+                "chunk_load",
+                "redstone",
+                "afk_time"
+        );
+        try (BufferedWriter w = Files.newBufferedWriter(
+                file,
+                StandardOpenOption.APPEND
+        )) {
+            w.write(header);
+            w.newLine();
         }
     }
 
-    /** 寫入單一玩家的統計到 CSV 行 */
+    /** 批次將所有在線玩家的事件計數寫入檔案 */
+    private void flushLogs(MinecraftServer server) {
+        for (var player : server.getPlayerManager().getPlayerList()) {
+            flushPlayer(player.getUuid());
+        }
+    }
+
+    /** 取出單一玩家的計數、寫入並重置 */
+    private void flushPlayer(UUID uuid) {
+        if (logsDir == null) return;
+        PlayerActionManager.EventCounts c = actionTracker.getAndResetCounts(uuid);
+        writeLog(uuid, c);
+    }
+
+    /** 將一筆計數格式化成 CSV 一行並寫入 */
     private void writeLog(UUID uuid, PlayerActionManager.EventCounts c) {
-        Path file = logsDir.resolve(uuid.toString() + ".log");
+        Path file = logsDir.resolve(uuid + ".csv");
         String line = formatCounts(c);
         try (BufferedWriter w = Files.newBufferedWriter(
                 file,
-                StandardOpenOption.CREATE,
-                StandardOpenOption.APPEND)) {
+                StandardOpenOption.APPEND
+        )) {
             w.write(line);
             w.newLine();
         } catch (IOException e) {
-            System.err.println(e);
+            e.printStackTrace();
         }
     }
 
-    /**
-     * 格式化事件計數為 CSV，欄位順序請對應你原本 insertData() 的 ps.setXXX()：
-     * timestamp, pickup, blockBreak, tntPrime, multiPlace, chat, blockDamage, blockPlace,
-     * craft, dmgByEntity, death, furnaceExtract, invClose, invOpen, bucketEmpty, bucketFill,
-     * cmdPre, playerDeath, itemDrop, expChange, interact, levelChange, quit, respawn,
-     * teleport, chunkLoadCounts, redstoneCounts
-     */
+    /** 格式化成「yyyy-MM-dd HH:mm:ss,數值,數值…」 */
     private String formatCounts(PlayerActionManager.EventCounts c) {
-        long ts = System.currentTimeMillis();
-        return ts + "," +
-                c.pickup + "," +
-                c.blockBreak + "," +
-                c.tntPrime + "," +
-//                c.multiPlace + "," +
-                c.chat + "," +
-                c.blockDamage + "," +
-                c.blockPlace + "," +
-                c.craft + "," +
-                c.dmgByEntity + "," +
-                c.death + "," +
-                c.furnaceExtract + "," +
-                c.invClose + "," +
-                c.invOpen + "," +
-                c.bucketEmpty + "," +
-                c.bucketFill + "," +
-                c.cmdPre + "," +
-                c.playerDeath + "," +
-                c.itemDrop + "," +
-                c.expChange + "," +
-                c.interact + "," +
-                c.levelChange + "," +
-                c.quit + "," +
-                c.respawn + "," +
-                c.teleport + "," +
-                c.chunkLoadCounts + "," +
-                c.redstoneCounts;
+        String ts = LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(System.currentTimeMillis()),
+                ZoneId.systemDefault()
+        ).format(TIMESTAMP_FMT);
+
+        return String.join(",",
+                ts,
+                String.valueOf(c.pickup),
+                String.valueOf(c.blockBreak),
+                String.valueOf(c.tntPrime),
+                String.valueOf(c.multiPlace),
+                String.valueOf(c.chat),
+                String.valueOf(c.blockDamage),
+                String.valueOf(c.blockPlace),
+                String.valueOf(c.craft),
+                String.valueOf(c.dmgByEntity),
+                String.valueOf(c.death),
+//                String.valueOf(c.explosion),
+                String.valueOf(c.furnaceExtract),
+                String.valueOf(c.invClose),
+                String.valueOf(c.invOpen),
+                String.valueOf(c.bucketEmpty),
+                String.valueOf(c.bucketFill),
+                String.valueOf(c.cmdPre),
+//                String.valueOf(c.cmdSend),
+                String.valueOf(c.playerDeath),
+                String.valueOf(c.itemDrop),
+                String.valueOf(c.expChange),
+                String.valueOf(c.interact),
+                String.valueOf(c.levelChange),
+                String.valueOf(c.quit),
+                String.valueOf(c.respawn),
+                String.valueOf(c.teleport),
+                String.valueOf(c.chunkLoadCounts),
+                String.valueOf(c.redstoneCounts),
+                String.valueOf(c.afktime)
+        );
     }
 }
-
-
